@@ -13,12 +13,12 @@ PROJECT    = t85-lcd
 #                is connected.
 # FUSES ........ Parameters for avrdude to flash the fuses appropriately.
 
-#DEVICE     = attiny85
+DEVICE     = attiny85
 #DEVICE     = attiny84
 #DEVICE     = atmega328p
 
 # 1 MHz
-#CLOCK      = 1000000
+CLOCK      = 1000000
 # 8 MHz
 #CLOCK      = 8000000
 # 16 MHz
@@ -63,7 +63,7 @@ CC         = avr-gcc
 AVRDUDE    = avrdude
 RM         = rm -f
 OBJECTS    = $(patsubst %.c,%.o, $(wildcard *.c))
-CFLAGS     = -Wall -Os -DF_CPU=$(CLOCK) -mmcu=$(DEVICE) -fno-exceptions
+CFLAGS     = -std=c99 -Wall -Os -DF_CPU=$(CLOCK) -mmcu=$(DEVICE) -fno-exceptions
 ######################################################################
 
 all: $(PROJECT).hex size
