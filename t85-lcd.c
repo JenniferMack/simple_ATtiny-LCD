@@ -106,7 +106,7 @@ int main(void)
         shiftByte(0x18);
         charORcmd(0);
         enableLCD();
-        _delay_ms(150);
+        _delay_ms(200);
     }
 
     return 0;
