@@ -3,7 +3,7 @@
 
 -----
 
-Summary: placeholder
+Summary: Various ways of making a LCD work with an ATtiny85.
 
 ## Usage
 
