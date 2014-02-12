@@ -94,30 +94,20 @@ int main(void)
     charORcmd(0x00);
     enableLCD();
 
-    _delay_ms(2);
-    shiftByte('j');
-    charORcmd(0x01);
-    enableLCD();
-    _delay_ms(2);
-    shiftByte('m');
-    charORcmd(0x01);
-    enableLCD();
+    for (uint8_t i=0x41; i<0x41+0x28; i++)
+    {
+        shiftByte(i);
+        charORcmd(1);
+        enableLCD();
+    }
 
-    _delay_ms(2);
-    shiftByte(0x80 | 0x40);
-    charORcmd(0x00);
-    enableLCD();
+    while (1==1) {
 
-    _delay_ms(2);
-    shiftByte('J');
-    charORcmd(0x01);
-    enableLCD();
-    _delay_ms(2);
-    shiftByte('M');
-    charORcmd(0x01);
-    enableLCD();
-
-    while (1==1) { }
+        shiftByte(0x18);
+        charORcmd(0);
+        enableLCD();
+        _delay_ms(150);
+    }
 
     return 0;
 }
