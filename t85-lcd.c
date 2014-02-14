@@ -57,7 +57,7 @@ int main(void)
     while (1==1) {
         for (uint8_t i=0; i<256; i++)
         {
-            shiftByte(i,1);
+            shiftByte(i,0);
             _delay_ms(150);
         }
     }
@@ -73,7 +73,7 @@ void shiftByte(uint8_t shiftData, uint8_t bitOrder)
         if ( 0 == bitOrder )
         {
             // LSB first
-            if ( 0 == shiftData & _BV(i) )
+            if ( 0 == ( shiftData & _BV(i) ) )
                 PORTB &= ~_BV(SROUT);
             else
                 PORTB |= _BV(SROUT);
