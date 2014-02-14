@@ -52,13 +52,21 @@ void shiftByte(uint8_t shiftData, uint8_t bitOrder);
 
 int main(void)
 {
+    // PB0:2 as output
     DDRB |= 0x07;
 
-    while (1==1) {
-        for (uint8_t i=0; i<256; i++)
-        {
-            shiftByte(i,1);
-            _delay_ms(75);
+    uint8_t i, j[8] = {0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80};
+
+    while (1==1)
+    {
+        for (i=0;i<8;i++) {
+            shiftByte(j[i],0);
+            _delay_ms(125);
+        }
+            
+        for (i=0;i<8;i++) {
+            shiftByte(j[i],1);
+            _delay_ms(125);
         }
     }
 
