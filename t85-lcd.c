@@ -52,13 +52,13 @@ void shiftByte(uint8_t shiftData, uint8_t bitOrder);
 
 int main(void)
 {
-    DDRB |= 0x1F;
+    DDRB |= 0x07;
 
     while (1==1) {
         for (uint8_t i=0; i<256; i++)
         {
-            shiftByte(i,0);
-            _delay_ms(150);
+            shiftByte(i,1);
+            _delay_ms(75);
         }
     }
 
@@ -79,7 +79,7 @@ void shiftByte(uint8_t shiftData, uint8_t bitOrder)
                 PORTB |= _BV(SROUT);
         } else {
             // MSB first
-            if ( 0 == ( shiftData & _BV((7 - i)) ) )
+            if ( 0 == ( shiftData & _BV((7-i)) ) )
                 PORTB &= ~_BV(SROUT);
             else
                 PORTB |= _BV(SROUT);
@@ -96,6 +96,5 @@ void shiftByte(uint8_t shiftData, uint8_t bitOrder)
     PORTB &= ~_BV(SROUT);
     PORTB &= ~_BV(SCK);
     PORTB &= ~_BV(RCK);
-
 }   
 
