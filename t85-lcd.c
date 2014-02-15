@@ -38,6 +38,10 @@ ATtiny85:
     PB4  -|    |- PB1
     GND  -|____|- PB0
 
+With LCD:
+
+LCD must be in 4-bit mode, and shift register is sending data and r/s+enable command. LCD will only recoginze new data on rising clock, so SR must be cleared between nibbles.
+
 +-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+
 */
 
@@ -52,6 +56,10 @@ ATtiny85:
 
 // Function prototypes
 void shiftByte(uint8_t shiftData, uint8_t bitOrder);
+void lcd_print(uint8_t &text);
+void lcd_cmd(uint8_t cmd);
+void lcd_init(void);
+void lcd_shift(void);
 
 int main(void)
 {
@@ -72,6 +80,26 @@ int main(void)
             _delay_ms(125);
         }
     }
+}
+
+void lcd_init(void)
+{
+    //TODO: 0x30 *3, 4 bit mode, cursor & clear
+}
+
+void lcd_print(uint8_t &text)
+{
+    //TODO: send string
+}
+
+void lcd_cmd(uint8_t cmd)
+{
+    //TODO: send command
+}
+
+void lcd_shift(void)
+{
+    //TODO: parameters, 4-bit twice, clear SR after each send
 }
 
 void shiftByte(uint8_t shiftData, uint8_t bitOrder)
