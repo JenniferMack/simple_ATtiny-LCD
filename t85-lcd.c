@@ -3,16 +3,17 @@
 Program: t85-lcd.c
 Created on: Thu Feb 13 19:00:47 MST 2014
 Notes:
+
 Using 74HC595 shift register
 
- DESCRIPTION
+Description:
+The M74HC595 device is a high speed CMOS 8-bit shift register with output latches (3-state) fabricated with silicon gate CMOS technology.
 
-Setup:
-Hold input B high, input A is data.
-Pin 8 is clock.
-Pin 9 is pulled low, clears register
-Pin 14 is Vcc
-Pin 7 is Gnd
+This device contains an 8-bit serial in, parallel out shift register that feeds an 8-bit D-type storage register. The storage register has 8 3-state outputs. Separate clocks are provided for both the shift register and the storage register.
+
+The shift register has direct overriding clear, serial input, and serial output (standard) pins for cascading. Both the shift register and storage register use positive edge triggered clocks. If both clocks are connected together, the shift register state will always be one clock pulse ahead of the storage register.
+
+All inputs are equipped with protection circuits against static discharge and transient excess voltage.
 
 Output:
 Bits are shift sequentially, so the first bit sent will be
@@ -31,17 +32,19 @@ Setup using MSB first:
       7 |  QH  |  7  | 128
 
 ATtiny85:
-           ----
+           ____
     RST  -|    |- VCC
     PB3  -|    |- PB2
     PB4  -|    |- PB1
-    GND  -|    |- PB0
-           ----
+    GND  -|____|- PB0
+
 +-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+-~-+
 */
 
 #include <avr/io.h>
 #include <util/delay.h>
+#include "defs.h"
+
 // ATtiny85 pins
 #define SROUT   PB0
 #define SCK     PB1
@@ -69,12 +72,10 @@ int main(void)
             _delay_ms(125);
         }
     }
-
-    return 0;
 }
 
 void shiftByte(uint8_t shiftData, uint8_t bitOrder)
-// Shift out bits
+// Shift out bits, MSB or LSB first
 {
     for (uint8_t i=0; i<8; i++)
     {
@@ -82,27 +83,25 @@ void shiftByte(uint8_t shiftData, uint8_t bitOrder)
         {
             // LSB first
             if ( 0 == ( shiftData & _BV(i) ) )
-                PORTB &= ~_BV(SROUT);
+                PIN_LO(B,SROUT);
             else
-                PORTB |= _BV(SROUT);
+                PIN_HI(B,SROUT);
         } else {
             // MSB first
-            if ( 0 == ( shiftData & _BV((7-i)) ) )
-                PORTB &= ~_BV(SROUT);
+            if ( 0 == ( shiftData & _BV(7-i) ) )
+                PIN_LO(B,SROUT);
             else
-                PORTB |= _BV(SROUT);
+                PIN_HI(B,SROUT);
         }
         // Pulse shift register clock low to high
-        PORTB |= _BV(SCK);
-        PORTB &= ~_BV(SCK);
+        PIN_HI(B,SCK);
+        PIN_LO(B,SCK);
     }
     // Pulse RCK to put data on output pins
-    PORTB |= _BV(RCK);
-    PORTB &= ~_BV(RCK);
+    PIN_HI(B,RCK);
+    PIN_LO(B,RCK);
 
-    // all outputs low
-    PORTB &= ~_BV(SROUT);
-    PORTB &= ~_BV(SCK);
-    PORTB &= ~_BV(RCK);
+    // Finish with all outputs low
+    PIN_LO(B,SROUT);
 }   
 
