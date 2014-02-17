@@ -66,25 +66,18 @@ int main(void)
     // PB0:2 as output
     DDRB |= 0x07;
 
-    uint8_t i, j[8] = {0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80};
-
-    while (1==1)
-    {
-        for (i=0;i<8;i++) {
-            shiftByte(j[i],0);
-            _delay_ms(125);
-        }
-            
-        for (i=0;i<8;i++) {
-            shiftByte(j[i],1);
-            _delay_ms(125);
-        }
-    }
 }
 
 void lcd_init(void)
 {
-    //TODO: 0x30 *3, 4 bit mode, cursor & clear
+    // Send 3 times for init
+    lcd_cmd(0x30);
+    lcd_cmd(0x30);
+    lcd_cmd(0x30);
+    // Set 4-bit mode, 2 lines, 5x7 dots
+    lcd_cmd(0x28);
+    // Display on, underline, no blink
+    lcd_cmd(0x0E);
 }
 
 void lcd_print(uint8_t &text)
@@ -94,7 +87,27 @@ void lcd_print(uint8_t &text)
 
 void lcd_cmd(uint8_t cmd)
 {
-    //TODO: send command
+    uint8_t send;
+
+    // Check for data in lower 4-bits, if zero, ok to send.
+    if ( 0 == (cmd & 0x0F) )
+    {
+        // add RS+Enable to cmd
+        send = cmd | 0x03;
+        shiftByte(send,0);
+    } else {
+        // mask lower 4-bits, add RS+Enable
+        send = (cmd & 0xF0) | 0x03;
+        shiftByte(send,0);
+        // reset SR
+        shiftByte(0x00,0);
+        // mask upper 4-bits, shift lower to upper, add RS+Enable
+        send = ((cmd & 0x0F) << 4) | 0x03;
+        shiftByte(send,0);
+    }
+
+    // Reset SR 
+    shiftByte(0x00,0)
 }
 
 void lcd_shift(void)
@@ -105,7 +118,9 @@ void lcd_shift(void)
 void shiftByte(uint8_t shiftData, uint8_t bitOrder)
 // Shift out bits, MSB or LSB first
 {
-    for (uint8_t i=0; i<8; i++)
+    uint8_t i;
+    
+    for (i=0; i<8; i++)
     {
         if ( 0 == bitOrder )
         {
