@@ -56,7 +56,7 @@ LCD must be in 4-bit mode, and shift register is sending data and r/s+enable com
 
 // Function prototypes
 void shiftByte(uint8_t shiftData, uint8_t bitOrder);
-void lcd_print(uint8_t &text);
+void lcd_print(uint8_t *text);
 void lcd_cmd(uint8_t cmd);
 void lcd_init(void);
 void lcd_shift(void);
@@ -65,6 +65,8 @@ int main(void)
 {
     // PB0:2 as output
     DDRB |= 0x07;
+    // startup lcd
+    lcd_init();
 
 }
 
@@ -80,9 +82,24 @@ void lcd_init(void)
     lcd_cmd(0x0E);
 }
 
-void lcd_print(uint8_t &text)
+void lcd_print(uint8_t *text)
 {
-    //TODO: send string
+    int i, send;
+
+    for (i=0;i<strlen(text)-1;i++)
+    {
+        // mask lower 4-bits, add Enable
+        send = (text[i] & 0xF0) | 0x01;
+        shiftByte(send,0);
+        // reset SR
+        shiftByte(0x00,0);
+        // mask upper 4-bits, shift lower to upper, add Enable
+        send = ((text[i] & 0x0F) << 4) | 0x01;
+        shiftByte(send,0);
+    }
+
+    // Reset SR 
+    shiftByte(0x00,0);
 }
 
 void lcd_cmd(uint8_t cmd)
@@ -107,7 +124,7 @@ void lcd_cmd(uint8_t cmd)
     }
 
     // Reset SR 
-    shiftByte(0x00,0)
+    shiftByte(0x00,0);
 }
 
 void lcd_shift(void)
