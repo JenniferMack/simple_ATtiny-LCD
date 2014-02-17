@@ -46,6 +46,7 @@ LCD must be in 4-bit mode, and shift register is sending data and r/s+enable com
 */
 
 #include <avr/io.h>
+#include <string.h>
 #include <util/delay.h>
 #include "defs.h"
 
@@ -56,80 +57,67 @@ LCD must be in 4-bit mode, and shift register is sending data and r/s+enable com
 
 // Function prototypes
 void shiftByte(uint8_t shiftData, uint8_t bitOrder);
-void lcd_print(uint8_t *text);
-void lcd_cmd(uint8_t cmd);
-void lcd_init(void);
-void lcd_shift(void);
+void lcdSend(uint8_t data, uint8_t cmdChar);
+void lcdPrint(uint8_t *text);
+void lcdCmd(uint8_t cmd);
+void lcdInit(void);
 
 int main(void)
 {
     // PB0:2 as output
     DDRB |= 0x07;
     // startup lcd
-    lcd_init();
+    lcdInit();
 
 }
 
-void lcd_init(void)
+void lcdInit(void)
 {
     // Send 3 times for init
-    lcd_cmd(0x30);
-    lcd_cmd(0x30);
-    lcd_cmd(0x30);
+    lcdCmd(0x30);
+    lcdCmd(0x30);
+    lcdCmd(0x30);
     // Set 4-bit mode, 2 lines, 5x7 dots
-    lcd_cmd(0x28);
+    lcdCmd(0x28);
     // Display on, underline, no blink
-    lcd_cmd(0x0E);
+    lcdCmd(0x0E);
 }
 
-void lcd_print(uint8_t *text)
+void lcdPrint(uint8_t *text)
 {
-    int i, send;
+    int i;
 
-    for (i=0;i<strlen(text)-1;i++)
+    for (i=0;i<strlen((const char *)text);i++)
     {
-        // mask lower 4-bits, add Enable
-        send = (text[i] & 0xF0) | 0x01;
-        shiftByte(send,0);
-        // reset SR
-        shiftByte(0x00,0);
-        // mask upper 4-bits, shift lower to upper, add Enable
-        send = ((text[i] & 0x0F) << 4) | 0x01;
-        shiftByte(send,0);
+        lcdSend(text[i], 0x01);
     }
 
     // Reset SR 
-    shiftByte(0x00,0);
+    lcdSend(0x00,0x00);
 }
 
-void lcd_cmd(uint8_t cmd)
+void lcdCmd(uint8_t cmd)
+{
+    lcdSend(cmd, 0x03);
+
+    // Reset SR 
+    lcdSend(0x00,0x00);
+}
+
+void lcdSend(uint8_t data, uint8_t cmdChar)
 {
     uint8_t send;
 
-    // Check for data in lower 4-bits, if zero, ok to send.
-    if ( 0 == (cmd & 0x0F) )
-    {
-        // add RS+Enable to cmd
-        send = cmd | 0x03;
-        shiftByte(send,0);
-    } else {
-        // mask lower 4-bits, add RS+Enable
-        send = (cmd & 0xF0) | 0x03;
-        shiftByte(send,0);
-        // reset SR
-        shiftByte(0x00,0);
-        // mask upper 4-bits, shift lower to upper, add RS+Enable
-        send = ((cmd & 0x0F) << 4) | 0x03;
-        shiftByte(send,0);
-    }
+    // mask lower 4-bits, add RS/Enable
+    send = (data & 0xF0) | cmdChar;
+    shiftByte(send,0);
 
-    // Reset SR 
+    // reset SR
     shiftByte(0x00,0);
-}
 
-void lcd_shift(void)
-{
-    //TODO: parameters, 4-bit twice, clear SR after each send
+    // mask upper 4-bits, shift lower to upper, add RS/Enable
+    send = ((data & 0x0F) << 4) | cmdChar;
+    shiftByte(send,0);
 }
 
 void shiftByte(uint8_t shiftData, uint8_t bitOrder)
