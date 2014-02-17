@@ -61,7 +61,7 @@ LCD must be in 4-bit mode, and shift register is sending data and r/s+enable com
 // Function prototypes
 void shiftByte(uint8_t shiftData, uint8_t bitOrder);
 void lcdSend(uint8_t data, uint8_t cmdChar);
-void lcdPrint(uint8_t *text);
+void lcdPrint(char *text);
 void lcdCmd(uint8_t cmd);
 void lcdInit(void);
 
@@ -97,11 +97,11 @@ void lcdInit(void)
     _delay_ms(10);
 }
 
-void lcdPrint(uint8_t *text)
+void lcdPrint(char *text)
 {
     int i;
 
-    for (i=0;i<strlen((const char *)text);i++)
+    for (i=0;i<strlen(text);i++)
     {
         lcdSend(text[i], 0x01);
     }
