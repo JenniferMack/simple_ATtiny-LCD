@@ -48,12 +48,15 @@ LCD must be in 4-bit mode, and shift register is sending data and r/s+enable com
 #include <avr/io.h>
 #include <string.h>
 #include <util/delay.h>
-#include "defs.h"
 
 // ATtiny85 pins
 #define SROUT   PB0
 #define SCK     PB1
 #define RCK     PB2
+
+// AVR shortcuts
+#define PIN_HI(port,pin) PORT##port |= _BV(pin)
+#define PIN_LO(port,pin) PORT##port &= ~_BV(pin)
 
 // Function prototypes
 void shiftByte(uint8_t shiftData, uint8_t bitOrder);
@@ -69,18 +72,29 @@ int main(void)
     // startup lcd
     lcdInit();
 
+    lcdPrint("Hello World!");
+
+    while (1==1)
+    {
+        //
+    }
 }
 
 void lcdInit(void)
 {
     // Send 3 times for init
     lcdCmd(0x30);
+    _delay_ms(10);
     lcdCmd(0x30);
+    _delay_ms(10);
     lcdCmd(0x30);
+    _delay_ms(10);
     // Set 4-bit mode, 2 lines, 5x7 dots
     lcdCmd(0x28);
+    _delay_ms(10);
     // Display on, underline, no blink
     lcdCmd(0x0E);
+    _delay_ms(10);
 }
 
 void lcdPrint(uint8_t *text)
@@ -93,7 +107,7 @@ void lcdPrint(uint8_t *text)
     }
 
     // Reset SR 
-    lcdSend(0x00,0x00);
+    shiftByte(0x00,0);
 }
 
 void lcdCmd(uint8_t cmd)
@@ -101,7 +115,7 @@ void lcdCmd(uint8_t cmd)
     lcdSend(cmd, 0x03);
 
     // Reset SR 
-    lcdSend(0x00,0x00);
+    shiftByte(0x00,0);
 }
 
 void lcdSend(uint8_t data, uint8_t cmdChar)
