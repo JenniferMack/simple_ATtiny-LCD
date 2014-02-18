@@ -73,7 +73,7 @@ int main(void)
     lcdInit();
 
     //TODO: bit order for text?
-    lcdPrint("Goodbye Kitty.");
+    lcdPrint("Jenny Mack");
 
     while (1==1)
     {
@@ -96,13 +96,13 @@ void lcdInit(void)
     shiftByte(0x20,0x01);
     // Confirm 4-bit mode, display off
     lcdCmd(0x28);
-    _delay_ms(2);
+    _delay_us(500);
     // Display off - default, not sending
     //lcdCmd(0x08);
     //_delay_ms(5);
     // Clear display
     lcdCmd(0x01);
-    _delay_ms(2);
+    _delay_us(500);
     // Increment, no shift - default, not sending
     //lcdCmd(0x06);
     //_delay_ms(5);
@@ -133,20 +133,20 @@ void lcdSend(uint8_t data, uint8_t cmdChar)
     send = (data & 0xF0);
     shiftByte((send|cmdChar),1);
 
-    _delay_ms(2);
+    _delay_us(500);
     // reset SR
     shiftByte(send,1);
 
-    _delay_ms(2);
+    _delay_us(500);
 
     // mask upper 4-bits, shift lower to upper, add RS/Enable
     send = ((data & 0x0F) << 4);
     shiftByte((send|cmdChar),1);
-    _delay_ms(2);
+    _delay_us(500);
 
     shiftByte(send,1);
 
-    _delay_ms(2);
+    _delay_us(500);
 }
 
 void shiftByte(uint8_t shiftData, uint8_t bitOrder)
