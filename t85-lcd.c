@@ -71,10 +71,9 @@ int main(void)
     DDRB |= 0x07;
     // startup lcd
     lcdInit();
-    lcdSend('M',0x03);
 
     //TODO: bit order for text?
-    //lcdPrint("Hello Kitty.");
+    lcdPrint("Hello Kitty.");
 
     while (1==1)
     {
