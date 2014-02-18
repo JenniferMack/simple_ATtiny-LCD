@@ -71,8 +71,10 @@ int main(void)
     DDRB |= 0x07;
     // startup lcd
     lcdInit();
+    lcdSend('M',0x03);
 
-    lcdPrint("Hello World!");
+    //TODO: bit order for text?
+    //lcdPrint("Hello Kitty.");
 
     while (1==1)
     {
@@ -82,19 +84,31 @@ int main(void)
 
 void lcdInit(void)
 {
-    // Send 3 times for init
-    lcdCmd(0x30);
-    _delay_ms(10);
-    lcdCmd(0x30);
-    _delay_ms(10);
-    lcdCmd(0x30);
-    _delay_ms(10);
-    // Set 4-bit mode, 2 lines, 5x7 dots
+    // wait a bit
+    _delay_ms(250);
+    // Send raw, for 8-bit mode, pulsing enable
+    shiftByte(0x31,0x01);
+    shiftByte(0x30,0x01);
+    shiftByte(0x31,0x01);
+    shiftByte(0x30,0x01);
+    shiftByte(0x31,0x01);
+    shiftByte(0x30,0x01);
+    shiftByte(0x21,0x01);
+    shiftByte(0x20,0x01);
+    // Confirm 4-bit mode, display off
     lcdCmd(0x28);
-    _delay_ms(10);
+    _delay_ms(5);
+    // Display off - default, not sending
+    //lcdCmd(0x08);
+    //_delay_ms(5);
+    // Clear display
+    lcdCmd(0x01);
+    _delay_ms(5);
+    // Increment, no shift - default, not sending
+    //lcdCmd(0x06);
+    //_delay_ms(5);
     // Display on, underline, no blink
     lcdCmd(0x0E);
-    _delay_ms(10);
 }
 
 void lcdPrint(char *text)
@@ -103,19 +117,13 @@ void lcdPrint(char *text)
 
     for (i=0;i<strlen(text);i++)
     {
-        lcdSend(text[i], 0x01);
+        lcdSend(text[i], 0x03);
     }
-
-    // Reset SR 
-    shiftByte(0x00,0);
 }
 
 void lcdCmd(uint8_t cmd)
 {
-    lcdSend(cmd, 0x03);
-
-    // Reset SR 
-    shiftByte(0x00,0);
+    lcdSend(cmd, 0x01);
 }
 
 void lcdSend(uint8_t data, uint8_t cmdChar)
@@ -123,15 +131,23 @@ void lcdSend(uint8_t data, uint8_t cmdChar)
     uint8_t send;
 
     // mask lower 4-bits, add RS/Enable
-    send = (data & 0xF0) | cmdChar;
-    shiftByte(send,0);
+    send = (data & 0xF0);
+    shiftByte((send|cmdChar),1);
 
+    _delay_ms(25);
     // reset SR
-    shiftByte(0x00,0);
+    shiftByte(send,1);
+
+    _delay_ms(25);
 
     // mask upper 4-bits, shift lower to upper, add RS/Enable
-    send = ((data & 0x0F) << 4) | cmdChar;
-    shiftByte(send,0);
+    send = ((data & 0x0F) << 4);
+    shiftByte((send|cmdChar),1);
+    _delay_ms(25);
+
+    shiftByte(send,1);
+
+    _delay_ms(25);
 }
 
 void shiftByte(uint8_t shiftData, uint8_t bitOrder)
