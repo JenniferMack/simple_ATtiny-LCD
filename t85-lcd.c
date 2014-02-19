@@ -19,7 +19,7 @@ Notes: 74HC595 shift register
 #define PIN_HI(port,pin) PORT##port |= _BV(pin)
 #define PIN_LO(port,pin) PORT##port &= ~_BV(pin)
 // Send MSB first
-#define SHIFT_BIT_ORDER     0xF;
+#define SHIFT_BIT_ORDER     0xF
 
 // Function prototypes
 void shiftByte(uint8_t shiftData);
@@ -99,11 +99,10 @@ void lcdSend(uint8_t data, uint8_t cmdChar)
     // mask lower 4-bits, add RS/Enable
     send = (data & 0xF0);
     shiftByte((send|cmdChar));
-
     _delay_us(500);
-    // reset SR
-    shiftByte(send);
 
+    // Enable low, keeping data on output
+    shiftByte(send);
     _delay_us(500);
 
     // mask upper 4-bits, shift lower to upper, add RS/Enable
@@ -111,8 +110,8 @@ void lcdSend(uint8_t data, uint8_t cmdChar)
     shiftByte((send|cmdChar));
     _delay_us(500);
 
+    // Enable low, keeping data on output
     shiftByte(send);
-
     _delay_us(500);
 }
 
