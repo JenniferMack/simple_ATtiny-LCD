@@ -48,29 +48,33 @@ void lcdInit(void)
 {
     // wait a bit
     _delay_ms(250);
-    // Send raw, for 8-bit mode, pulsing enable
+    // Send raw, in 8-bit mode, pulsing enable the hard way
+    // If sent with lcdSend(), will get an enable pulse on 
+    // upper and lower nibble. Which breaks everything.
     shiftByte(0x31);
     shiftByte(0x30);
     shiftByte(0x31);
     shiftByte(0x30);
     shiftByte(0x31);
     shiftByte(0x30);
+    // Start 4-bit mode, with 8-bit command,
+    // must send with only one enable pulse
     shiftByte(0x21);
     shiftByte(0x20);
-    // Confirm 4-bit mode, display off
+    // Resend 4-bit mode & display off, as upper/lower bits
     lcdCmd(0x28);
     _delay_us(500);
-    // Display off - default, not sending
-    //lcdCmd(0x08);
-    //_delay_ms(5);
-    // Clear display
+    // Clear display, while display off
+    // Seems odd, but required
     lcdCmd(0x01);
     _delay_us(500);
     // Increment, no shift - default, not sending
     //lcdCmd(0x06);
     //_delay_ms(5);
+    //
     // Display on, underline, no blink
     lcdCmd(0x0E);
+    // Ready for use
 }
 
 void lcdPrint(char *text)
