@@ -57,3 +57,5 @@ Three pins are need for outputs, SCK, RCK, SI.
 
 
 ##  LCD
+
+TODO: describe hookup & commands
