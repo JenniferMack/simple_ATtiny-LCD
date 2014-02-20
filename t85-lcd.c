@@ -36,6 +36,8 @@ int main(void)
     lcdInit();
 
     // Test output
+    lcdPrint("@shotbyjenn");
+    lcdCmd(0xC0);
     lcdPrint("Jenny Mack");
 
     while (1==1)
@@ -73,7 +75,7 @@ void lcdInit(void)
     //_delay_ms(5);
     //
     // Display on, underline, no blink
-    lcdCmd(0x0E);
+    lcdCmd(0x0C);
     // Ready for use
 }
 
