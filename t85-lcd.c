@@ -36,9 +36,9 @@ int main(void)
     lcdInit();
 
     // Test output
-    lcdPrint("@shotbyjenn");
+    lcdPrint("  @shotbyjenn");
     lcdCmd(0xC0);
-    lcdPrint("Jenny Mack");
+    lcdPrint("   Jenny Mack");
 
     while (1==1)
     {
