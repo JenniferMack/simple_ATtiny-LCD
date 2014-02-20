@@ -1,5 +1,4 @@
-
-# AVR ATtiny85 with '595 Shift Register+LCD
+# ATtiny85 with 75HC595 Shift Register+LCD
 
 -----
 
