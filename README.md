@@ -1,6 +1,5 @@
 # ATtiny85 with 75HC595 Shift Register+LCD
 
------
 
 Datasheets:
 
